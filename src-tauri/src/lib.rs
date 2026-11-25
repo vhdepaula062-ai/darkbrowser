@@ -3000,7 +3000,7 @@ pub fn run() {
                     #[cfg(target_os = "macos")]
                     let builder = builder.icon_as_template(true);
                     builder
-                        .tooltip("ShardBrowser Launcher")
+                        .tooltip("DarkBrowser")
                         .menu(&menu)
                         // macOS opens the menu on any click (the tray library keeps it attached),
                         // as menu bar extras do there; elsewhere a left click shows the window.

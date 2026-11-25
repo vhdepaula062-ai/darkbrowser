@@ -1307,7 +1307,7 @@ export const handlers: Record<string, Handler> = {
 
   // ---- Tauri plugins ------------------------------------------------------------
   "plugin:app|version": () => "2.0.3",
-  "plugin:app|name": () => "ShardBrowser Launcher",
+  "plugin:app|name": () => "DarkBrowser",
   "plugin:app|tauri_version": () => "2.5.0",
   "plugin:dialog|open": ({ options }) => {
     const o = options ?? {};

@@ -51,7 +51,7 @@ export function AboutSection() {
   // copy for a bug report, and the update status; the actions under it.
   return (
     <div className="flex flex-col gap-[10px]">
-      <DetailsCard id="about" title="ShardBrowser Launcher">
+      <DetailsCard id="about" title="DarkBrowser">
         <DetailRow id="version" label={t("settings.aboutVersionLabel")} copy={info ? { value: info.current } : undefined}>
           {info?.current ?? "…"}
         </DetailRow>
