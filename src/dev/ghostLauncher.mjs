@@ -13,6 +13,9 @@ const activeProcesses = new Map();
 // Candidate paths for Chromium engine (Google Chrome removed per user instruction)
 function findEngineBinary() {
   const candidates = [
+    // Prefer the runtime shipped with an extracted editable DarkBrowser bundle.
+    resolve(projectRoot, "portable/runtime/darkbyte-engine-windows-x64/chrome.exe"),
+    resolve(projectRoot, "release-portable/runtime/darkbyte-engine-windows-x64/chrome.exe"),
     // 1. Official DARKBYTE Chromium engine (pure Chromium binary)
     resolve(process.env.APPDATA || "", "darkbyte-ghost-browser/runtime/darkbyte-engine-windows-x64/chrome.exe"),
     resolve(process.env.APPDATA || "", "darkbyte-ghost-browser/runtime/darkbyte-engine-windows-x64/chromium.exe"),
