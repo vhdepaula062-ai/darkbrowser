@@ -1,9 +1,14 @@
-param([switch]$RebuildFrontend)
+param([switch]$RebuildFrontend, [string]$ToolchainRoot, [string]$LlvmBin, [string]$BuildCache)
 $ErrorActionPreference = 'Stop'
 Set-Location (Join-Path $PSScriptRoot '..')
 $projectRoot = (Get-Location).Path
 $toolchain = if (Test-Path 'tools/mingw64/bin/gcc.exe') { Join-Path $projectRoot 'tools/mingw64' } else { 'G:\DARKBROWSER_TOOLCHAINS\winlibs-mingw-16.2.0\mingw64' }
 $llvm = if (Test-Path 'tools/llvm/bin/libclang.dll') { Join-Path $projectRoot 'tools/llvm/bin' } else { 'G:\DARKBROWSER_TOOLCHAINS\llvm-runtime\clang+llvm-23.1.6-x86_64-pc-windows-msvc\bin' }
+if ($ToolchainRoot) { $toolchain = (Resolve-Path -LiteralPath $ToolchainRoot).Path }
+if ($LlvmBin) { $llvm = (Resolve-Path -LiteralPath $LlvmBin).Path }
+if (!(Test-Path "$toolchain/bin/gcc.exe") -or !(Test-Path "$llvm/libclang.dll")) {
+    throw 'Use o ZIP completo com tools ou informe -ToolchainRoot e -LlvmBin para seu MinGW e LLVM.'
+}
 if (Test-Path 'tools/node/node.exe') { $env:PATH = (Join-Path $projectRoot 'tools/node') + ';' + $env:PATH }
 if (Test-Path 'tools/rust/bin/cargo.exe') { $env:PATH = (Join-Path $projectRoot 'tools/rust/bin') + ';' + $env:PATH }
 if (Test-Path 'tools/cargo/registry') { $env:CARGO_HOME = Join-Path $projectRoot 'tools/cargo' }
@@ -13,6 +18,7 @@ $env:CXX = "$toolchain\bin\g++.exe"
 $env:CC_x86_64_pc_windows_gnu = $env:CC
 $env:CXX_x86_64_pc_windows_gnu = $env:CXX
 $env:CARGO_TARGET_DIR = if (Test-Path 'tools/rust') { Join-Path $projectRoot '.build' } else { 'G:\DARKBROWSER_BUILD_TARGET' }
+if ($BuildCache) { $env:CARGO_TARGET_DIR = [IO.Path]::GetFullPath($BuildCache) }
 $env:LIBCLANG_PATH = $llvm
 $env:BINDGEN_EXTRA_CLANG_ARGS = "--target=x86_64-w64-windows-gnu -isystem $toolchain/x86_64-w64-mingw32/include"
 # Reuse the libraries compiled from this dependency's patched source.
