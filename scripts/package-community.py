@@ -9,6 +9,17 @@ def add_tree(z, source, prefix, skip=()):
     n=0
     for folder, dirs, files in os.walk(source):
         dirs[:]=[d for d in dirs if d not in skip and d!='.git']
+        relative=Path(folder).relative_to(source)
+        # Rust's 65,000 HTML documentation files are not needed to compile.
+        # Cargo extracts dependency sources from the included .crate cache.
+        if prefix=='DarkBrowser/tools/rust' and relative==Path('.'):
+            dirs[:]=[d for d in dirs if d!='share']
+        if prefix=='DarkBrowser/tools/cargo/registry' and relative==Path('.'):
+            dirs[:]=[d for d in dirs if d!='src']
+        # npm's local ui-kit junction duplicates its entire dependency tree.
+        # Keep its package and built assets, and the real ui-kit tree above.
+        if prefix=='DarkBrowser/node_modules' and relative.parts[:2]==('@proxyshard','shardx-ui-kit'):
+            dirs[:]=[d for d in dirs if d!='node_modules']
         for name in files:
             p=Path(folder)/name
             if name.startswith('.env') or name.endswith(('.log','.pyc','.bak')) or name.startswith('.verification') or name.startswith('.remaining'): continue
@@ -34,6 +45,10 @@ with archive('darkbrowser-project-complete.zip') as z:
     add_tree(z,'G:/DARKBROWSER_TOOLCHAINS/winlibs-mingw-16.2.0/mingw64','DarkBrowser/tools/mingw64')
     add_tree(z,'G:/DARKBROWSER_TOOLCHAINS/llvm-runtime/clang+llvm-23.1.6-x86_64-pc-windows-msvc','DarkBrowser/tools/llvm')
     add_tree(z,Path(os.environ['USERPROFILE'])/'.rustup/toolchains/stable-x86_64-pc-windows-gnu','DarkBrowser/tools/rust')
+    rust=Path(os.environ['USERPROFILE'])/'.rustup/toolchains/stable-x86_64-pc-windows-gnu'
+    for p in (rust/'share/doc').rglob('*'):
+        if p.is_file() and ('LICENSE' in p.name or 'COPYRIGHT' in p.name or '/licenses/' in p.as_posix()):
+            z.write(p,'DarkBrowser/tools/rust/'+p.relative_to(rust).as_posix())
     add_tree(z,Path(os.environ['USERPROFILE'])/'.cargo/registry','DarkBrowser/tools/cargo/registry')
     add_tree(z,'C:/Program Files/nodejs','DarkBrowser/tools/node')
     bssl=Path('G:/DARKBROWSER_BUILD_TARGET/x86_64-pc-windows-gnu/release/build/btls-sys/96ee1704b1a2e2d7/out')
